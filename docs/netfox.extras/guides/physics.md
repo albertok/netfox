@@ -41,3 +41,9 @@ To make use of NetworkRigidBody you need to:
 2. Move physics-related logic from `_physics_process` to `_physics_rollback_tick`.
 
 ![[network-rigid-body.png]]
+
+## NetworkArea
+
+Due to rollback, an Area3D's `body_entered` signal might be called multiple times, even if a node enters the area only once (same with `body_exited`).
+
+This behaviour can be prevented by instead using the `NetworkArea3D` or `NetworkArea2D` node, and listening to the `rollback_body_entered` or `rollback_body_exited` signals instead.
