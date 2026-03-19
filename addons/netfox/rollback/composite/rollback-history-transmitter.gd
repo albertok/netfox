@@ -204,7 +204,7 @@ func _notification(what):
 
 @rpc("any_peer", "unreliable", "call_remote")
 func _submit_input(tick: int, data: Array) -> void:
-	if not _is_initialized:
+	if not _is_initialized or not is_inside_tree():
 		# Settings not processed yet
 		return
 
@@ -218,7 +218,7 @@ func _submit_input(tick: int, data: Array) -> void:
 # `serialized_state` is a serialized _PropertySnapshot
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_full_state(data: Array, tick: int) -> void:
-	if not _is_initialized:
+	if not _is_initialized or not is_inside_tree():
 		# Settings not processed yet
 		return
 
@@ -235,7 +235,7 @@ func _submit_full_state(data: Array, tick: int) -> void:
 # State is a serialized _PropertySnapshot (Dictionary[String, Variant])
 @rpc("any_peer", "unreliable_ordered", "call_remote")
 func _submit_diff_state(data: PackedByteArray, tick: int, reference_tick: int) -> void:
-	if not _is_initialized:
+	if not _is_initialized or not is_inside_tree():
 		# Settings not processed yet
 		return
 
