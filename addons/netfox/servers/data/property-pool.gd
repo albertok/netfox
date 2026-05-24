@@ -50,7 +50,14 @@ func get_properties_of(subject: Object) -> Array[NodePath]:
 
 func get_subjects() -> Array[Object]:
 	var subjects := [] as Array[Object]
-	subjects.assign(_properties_by_subject.keys())
+	var to_erase := []
+	for subject in _properties_by_subject.keys():
+		if is_instance_valid(subject):
+			subjects.append(subject)
+		else:
+			to_erase.append(subject)
+	for subject in to_erase:
+		_properties_by_subject.erase(subject)
 	return subjects
 
 func is_empty() -> bool:

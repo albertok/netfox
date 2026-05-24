@@ -117,6 +117,8 @@ func simulate(delta: float, tick: int) -> void:
 
 	# Determine predicted nodes
 	for node in _callbacks.keys():
+		if not is_instance_valid(node):
+			continue
 		if _is_predicting(input_snapshot, node):
 			_predicted_nodes.add(node)
 
@@ -141,7 +143,11 @@ func _get_nodes_to_simulate(input_snapshot: _Snapshot) -> Array[Node]:
 		return []
 
 	var tick := input_snapshot.tick
+	var stale_callbacks: Array = []
 	for node in _callbacks.keys():
+		if not is_instance_valid(node):
+			stale_callbacks.append(node)
+			continue
 		if not _liveness_server.is_alive(node, tick):
 			# Node is not alive in this tick
 			continue
@@ -166,6 +172,10 @@ func _get_nodes_to_simulate(input_snapshot: _Snapshot) -> Array[Node]:
 			continue
 
 		result.append(node)
+
+	for node in stale_callbacks:
+		_callbacks.erase(node)
+		_simulated_ticks.erase(node)
 
 	return result
 
