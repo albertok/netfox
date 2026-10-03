@@ -4,6 +4,7 @@ class_name _PropertyPool
 # Stores a set of properties, with each property belonging to a subject
 
 var _properties_by_subject := {} # object to property array
+var _subjects: Array[Object] = []
 
 static func of(entries: Array[Array]) -> _PropertyPool:
 	var pool := _PropertyPool.new()
@@ -21,6 +22,7 @@ func add(subject: Object, property: NodePath) -> void:
 
 	if not _properties_by_subject.has(subject):
 		_properties_by_subject[subject] = [property]
+		_subjects.append(subject)
 	else:
 		_properties_by_subject[subject].append(property)
 
@@ -39,25 +41,34 @@ func erase(subject: Object, property: NodePath) -> void:
 
 	if props.is_empty():
 		_properties_by_subject.erase(subject)
+		_subjects.erase(subject)
 
 func erase_subject(subject: Object) -> void:
-	_properties_by_subject.erase(subject)
+	if _properties_by_subject.erase(subject):
+		_subjects.erase(subject)
 
 func clear() -> void:
 	_properties_by_subject.clear()
+	_subjects.clear()
 
 func get_properties_of(subject: Object) -> Array[NodePath]:
-	var properties := [] as Array[NodePath]
+	var properties: Array[NodePath] = []
 	properties.assign(_properties_by_subject.get(subject, []))
 	return properties
 
+func _properties_raw(subject: Object) -> Array:
+	return _properties_by_subject.get(subject, [])
+
+func _subjects_raw() -> Array[Object]:
+	return _subjects
+
 func get_subjects() -> Array[Object]:
-	var subjects := [] as Array[Object]
-	subjects.assign(_properties_by_subject.keys())
-	return subjects
+	var result: Array[Object] = []
+	result.assign(_subjects)
+	return result
 
 func is_empty() -> bool:
-	return _properties_by_subject.is_empty()
+	return _subjects.is_empty()
 
 func set_from_paths(root: Node, paths: Array[String]) -> void:
 	clear()
