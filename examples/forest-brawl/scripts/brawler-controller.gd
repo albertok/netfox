@@ -26,7 +26,9 @@ var player_name: String = "":
 		if p_name.length() > 24:
 			p_name = p_name.substr(0, 21) + "..."
 		player_name = p_name
-		nametag.text = p_name
+
+		if nametag:
+			nametag.text = p_name
 
 var player_id: int = -1
 var last_hit_player: BrawlerController
@@ -34,6 +36,9 @@ var last_hit_tick: int = -1
 var gravity = ProjectSettings.get_setting(&"physics/3d/default_gravity")
 var respawn_tick: int = -1
 var respawn_count: int = 0
+
+static func get_color_of(player_id: int) -> Color:
+	return Color.from_hsv((hash(player_id) % 256) / 256.0, 1.0, 1.0)
 
 func register_hit(from: BrawlerController):
 	if from == self:
@@ -45,6 +50,16 @@ func register_hit(from: BrawlerController):
 
 func shove(motion: Vector3):
 	move_and_collide(motion / mass)
+
+func set_color(color: Color) -> void:
+	if not is_instance_valid(mesh): return
+
+	var material: StandardMaterial3D = mesh.get_active_material(0)
+	if not is_instance_valid(material): return
+
+	material = material.duplicate()
+	material.albedo_color = color
+	mesh.set_surface_override_material(0, material)
 
 func _exit_tree():
 	GameEvents.on_brawler_despawn.emit(self)
@@ -61,12 +76,10 @@ func _ready():
 	if not player_name:
 		player_name = "Nameless Brawler #%s" % [player_id]
 
+	nametag.text = player_name
+
 	# Set player color
-	var color = Color.from_hsv((hash(player_id) % 256) / 256.0, 1.0, 1.0)
-	var material: StandardMaterial3D = mesh.get_active_material(0)
-	material = material.duplicate()
-	material.albedo_color = color
-	mesh.set_surface_override_material(0, material)
+	set_color(get_color_of(player_id))
 
 	# Specify schema
 	rollback_synchronizer.set_schema({

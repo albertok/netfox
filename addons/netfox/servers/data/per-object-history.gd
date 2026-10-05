@@ -18,7 +18,7 @@ func subjects() -> Array[Object]:
 	result.assign(_subjects)
 	return result
 
-func _subjects_raw() -> Array[Object]:
+func subjects_raw() -> Array:
 	return _subjects
 
 func is_auth(tick: int, subject: Object) -> bool:
@@ -106,7 +106,7 @@ func record_subjects(tick: int, subjects: Array, property_pool: _PropertyPool, t
 			_logger.warning("Dropping recorded tick @%d for subject %s as out-of-bounds", [tick, subject])
 			continue
 
-		var properties := property_pool._properties_raw(subject)
+		var properties := property_pool.get_properties_of_raw(subject)
 		assert(not properties.is_empty(), "Subject present in property pool without properties! Please report a bug!")
 		subject_snapshot.record_properties(properties, tick_snapshot, is_auth)
 

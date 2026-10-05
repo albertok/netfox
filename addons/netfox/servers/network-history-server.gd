@@ -76,6 +76,21 @@ func deregister(node: Node) -> void:
 			var snapshot := value as _Snapshot
 			snapshot.erase_subject(node)
 
+## Forget all recorded history, while keeping the registered properties
+## [br][br]
+## History is indexed by tick, so data from a previous session must not carry
+## over to the next one. Called by [method _NetworkTime.stop].
+func reset() -> void:
+	_rb_input_history = _PerObjectHistory.new(_rb_history_size)
+	_rb_state_history = _PerObjectHistory.new(_rb_history_size)
+	_sync_history = _PerObjectHistory.new(_sync_history_size)
+
+	_rb_input_snapshots = _HistoryBuffer.new(_rb_history_size)
+	_rb_state_snapshots = _HistoryBuffer.new(_rb_history_size)
+	_sync_state_snapshots = _HistoryBuffer.new(_sync_history_size)
+
+	_ignored_subjects.clear()
+
 ## Do not record [param subject]
 ## [br][br]
 ## Can be used in [code]_rollback_tick()[/code] in case node prediction is
@@ -134,7 +149,7 @@ func push_rollback_state(subject: Node, tick: int) -> void:
 
 	var is_auth := subject.is_multiplayer_authority()
 	subject_snapshot.record_properties(
-		_rb_state_properties._properties_raw(subject),
+		_rb_state_properties.get_properties_of_raw(subject),
 		snapshot,
 		is_auth
 	)
@@ -197,7 +212,7 @@ func _record(tick: int, history: _PerObjectHistory, snapshots: _HistoryBuffer, p
 
 	history.record_subjects(
 		tick,
-		property_pool._subjects_raw(),
+		property_pool.get_subjects_raw(),
 		property_pool,
 		snapshot,
 		only_auth,

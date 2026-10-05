@@ -56,16 +56,16 @@ func get_properties_of(subject: Object) -> Array[NodePath]:
 	properties.assign(_properties_by_subject.get(subject, []))
 	return properties
 
-func _properties_raw(subject: Object) -> Array:
+func get_properties_of_raw(subject: Object) -> Array:
 	return _properties_by_subject.get(subject, [])
-
-func _subjects_raw() -> Array[Object]:
-	return _subjects
 
 func get_subjects() -> Array[Object]:
 	var result: Array[Object] = []
 	result.assign(_subjects)
 	return result
+
+func get_subjects_raw() -> Array:
+	return _subjects
 
 func is_empty() -> bool:
 	return _subjects.is_empty()
