@@ -25,6 +25,21 @@ func write_for(peer: int, snapshot: _Snapshot, properties: _PropertyPool, filter
 		assert(node.is_multiplayer_authority(), "Trying to serialize state for non-owned node!")
 		assert(snapshot.is_auth(node), "Trying to serialize non-auth state node!")
 
+		# Ownership can change between when a redundant snapshot was recorded and
+		# when it is sent. Skip the whole subject
+		var skip_subject := false
+		for property in properties.get_properties_of(node):
+			if snapshot.has_property(node, property):
+				continue
+			_logger.warning(
+				"Skipping subject %s, missing property %s in snapshot @%d",
+				[node.get_parent().name if node.get_parent() else node.name, property, snapshot.tick]
+			)
+			skip_subject = true
+			break
+		if skip_subject:
+			continue
+
 		# Prepare buffers
 		frame_buffer.clear()
 		node_buffer.clear()
@@ -36,8 +51,6 @@ func write_for(peer: int, snapshot: _Snapshot, properties: _PropertyPool, filter
 		# Write properties as-is
 		# First into a buffer, so we can start with the state size
 		for property in properties.get_properties_of(node):
-			assert(snapshot.has_property(node, property), "Trying to serialize missing property %s on subject %s!" % [property, node])
-
 			var value := snapshot.get_property(node, property)
 			_write_property(node, property, value, node_buffer)
 
